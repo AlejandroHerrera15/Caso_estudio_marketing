@@ -17,21 +17,69 @@ cur.fetchall()
 
 
 #######
-############ traer tabla de BD a python ####
+##traer tabla de BD a python ##
 
 movies= pd.read_sql("""select *  from movies""", conn)
 ratings = pd.read_sql('select * from ratings', conn)
 
-#####Exploración inicial #####
+
+#########################################
+############# Exploración ###############
+#########################################
 
 ### Identificar campos de cruce y verificar que estén en mismo formato ####
 ### verificar duplicados
 
 movies.info()
 movies.head()
-movies.duplicated().sum() 
+movies.duplicated().sum()
+movies.isnull().sum()
+movies.shape
 
 ratings.info()
 ratings.head()
 ratings.duplicated().sum()
+ratings.isnull().sum()
+ratings.shape
+#Las bases no tienen datos duplicados ni nulos.
+
+
+###### Exploración de Ratings #######
+
+cr=pd.read_sql(""" select 
+                          "rating", 
+                          count(*) as conteo 
+                          from ratings 
+                          group by "rating"
+                          """, conn)
+
+
+data  = go.Bar( x=cr.rating,y=cr.conteo, text=cr.conteo, textposition="outside")
+Layout=go.Layout(title="Count of ratings",xaxis={'title':'Rating'},yaxis={'title':'Count'})
+go.Figure(data,Layout)
+
+#El conteo de clasificaciónes nos muestra como las puntuaciones de '4' y '3' son las que tienen
+#una mayor participación, las calificaciónes con menor participación son las de '0.5', '1' y '1.5'.
+
+
+rating_users=pd.read_sql(''' select "UserId" as user_id,
+                         count(*) as cnt_rat
+                         from ratings
+                         group by "UserId"
+                         order by cnt_rat desc
+                         ''',conn )
+
+
+data  = go.Scatter(x = rating_users.index, y= rating_users.cnt_rat)
+Layout= go.Layout(title="Ratings given per user",xaxis={'title':'User Count'}, yaxis={'title':'Ratings'})
+go.Figure(data, Layout) 
+
+
+
+
+
+
+
+
+
 
