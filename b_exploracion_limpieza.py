@@ -104,6 +104,9 @@ ratings =pd.read_sql('select * from  ratings_f',conn)
 pd.read_sql('select count(*) movies_f', conn)
 movies =pd.read_sql('select * from  movies_f',conn)
 
+pd.read_sql('select count(*) ratings_final', conn)
+df_final = pd.read_sql('select * from  ratings_final',conn)
+
 ###### Para separar géneros en base de datos
 genres=movies['genres'].str.split('|')
 te = TransactionEncoder()
@@ -116,7 +119,7 @@ movies =pd.concat([movies, genres],axis=1)
 movies = movies.drop(['movieId:1'], axis = 1) 
 
 ###### Extraer año de la variable titulo
-movies['year'] = movies['title'].str[-5:-1]
+movies['año_estreno'] = movies['title'].str[-5:-1]
 
 ###### Conviertiendo la variable timestamp a datetime
 if 'timestamp' in ratings.columns:
@@ -130,14 +133,45 @@ if 'timestamp' in ratings.columns:
     ratings['fecha_vista'] = ratings['fecha_vista'].dt.date
 
 
+###### Limpieza para base combinada final
+genres2=df_final['genres'].str.split('|')
+te2= TransactionEncoder()
+genres2 = te2.fit_transform(genres2)
+genres2 = pd.DataFrame(genres2, columns = te2.columns_)
+genres2  = genres2.astype(int)
+df_final = df_final.drop(['genres'], axis = 1) 
+df_final =pd.concat([df_final, genres2],axis=1)
+#Eliminamos la variable movieId:1 que no es necesaria
+df_final = df_final.drop(['movieId:1'], axis = 1) 
+
+###### Extraer año de la variable titulo
+df_final['año_estreno'] = df_final['title'].str[-5:-1]
+
+###### Conviertiendo la variable timestamp a datetime
+if 'timestamp' in df_final.columns:
+    # Convertir 'timestamp' a formato de fecha
+    df_final['fecha_vista'] = pd.to_datetime(df_final['timestamp'], unit='s')
+
+    # Eliminar la columna 'timestamp'
+    df_final.drop(['timestamp'], axis=1, inplace=True)
+    
+    # Eliminar hora de fecha
+    df_final['fecha_vista'] = df_final['fecha_vista'].dt.date
+
+
 movies.to_sql('movies2',conn, index=False, if_exists='replace')
 base_movies=pd.read_sql('select * from movies2',conn)
 
 ratings.to_sql('ratings2', conn, index=False, if_exists='replace')
 base_ratings=pd.read_sql('''select * from ratings2''',conn)
 
+df_final.to_sql('ratings_final2', conn, index=False, if_exists='replace')
+base_completa = pd.read_sql('''select * from ratings_final2''',conn)
+
 base_ratings
 base_movies
+base_completa
+
 
 conn.close()
 
