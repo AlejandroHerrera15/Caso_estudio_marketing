@@ -17,7 +17,6 @@ cur=conn.cursor() ###para funciones que ejecutan sql en base de datos
 cur.execute("SELECT name FROM sqlite_master where type='table' ")
 cur.fetchall()
 
-
 #######
 ##traer tabla de BD a python ##
 
@@ -91,7 +90,7 @@ Layout= go.Layout(title="Ratings received per movie",xaxis={'title':'movie Count
 go.Figure(data, Layout)
 # Se puede interpretar del grafico anterior que hay una variación considerable en el número de calificaciones asignadas a cada película. 
 # Por ejemplo, la película más popular ha recibido 329 calificaciones, mientras que hay películas que solo han sido calificadas una vez. 
-# EPor consecuencia, resulta pertinente aplicar un filtro para incluir únicamente aquellas películas que han recibido un número significativo 
+# Por consecuencia, resulta pertinente aplicar un filtro para incluir únicamente aquellas películas que han recibido un número significativo 
 # de calificaciones para garantizar la validez del estudio.
 
 ## LIMPIEZA Y TRANSFORMACIONES ##
@@ -119,33 +118,28 @@ movies = movies.drop(['movieId:1'], axis = 1)
 ###### Extraer año de la variable titulo
 movies['year'] = movies['title'].str[-5:-1]
 
-###### Conviertiendo la variable timestamp a datatime
-lista = ratings["timestamp"]
-lista_2 = []
-for i in lista:
-    lista_2.append ((datetime.fromtimestamp(i)).strftime("%d-%m-%Y")) # Se convierte de timestamp a datatime.
+###### Conviertiendo la variable timestamp a datetime
+if 'timestamp' in ratings.columns:
+    # Convertir 'timestamp' a formato de fecha
+    ratings['fecha_vista'] = pd.to_datetime(ratings['timestamp'], unit='s')
 
-ratings = ratings.drop(['timestamp'], axis = 1) #Eliminamos "timestamp".
-df = pd.DataFrame(lista_2)
-
-ratings =pd.concat([ratings, df],axis=1) # Se une la base con la fecha modificada.
-ratings = ratings.rename(columns={0: 'view_time'}).reset_index()
-# Se eliminan la columna que no se necesitan.
-ratings = ratings.drop(['index'], axis = 1)
-ratings["view_time"]=pd.to_datetime(ratings['view_time']) #Se le vuelve asignar el formato de DateTime. 
+    # Eliminar la columna 'timestamp'
+    ratings.drop(['timestamp'], axis=1, inplace=True)
+    
+    # Eliminar hora de fecha
+    ratings['fecha_vista'] = ratings['fecha_vista'].dt.date
 
 
+movies.to_sql('movies2',conn, index=False, if_exists='replace')
+base_movies=pd.read_sql('select * from movies2',conn)
 
+ratings.to_sql('ratings2', conn, index=False, if_exists='replace')
+base_ratings=pd.read_sql('''select * from ratings2''',conn)
 
-cur.execute('DROP TABLE IF EXISTS movies2')
-movies.to_sql('movies2',conn)
-movies=pd.read_sql('select * from movies2',conn).drop(['index'], axis = 1) 
+base_ratings
+base_movies
 
-cur.execute('DROP TABLE IF EXISTS ratings2')
-ratings.to_sql('ratings2',conn)
-ratings=pd.read_sql('''select * from ratings2''',conn).drop(['index'], axis = 1) 
-
-
+conn.close()
 
 
 

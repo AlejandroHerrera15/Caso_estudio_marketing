@@ -1,16 +1,18 @@
 import numpy as np 
 import pandas as pd 
-import sqlite3 as sql 
-import plotly.graph_objs as go 
 import a_funciones as fn 
-from mlxtend.preprocessing import TransactionEncoder 
+import sqlite3 as sql 
 from datetime import datetime
+import plotly.graph_objs as go 
+from mlxtend.preprocessing import TransactionEncoder
 
 
 conn=sql.connect('data\\db_movies')
-cur=conn.cursor() ###para funciones que ejecutan sql en base de datos
+cur=conn.cursor()
 
-movies=pd.read_sql('select* from movie2',conn)
-ratings=pd.read_sql('select* from ratings2',conn)
-ratings["view_time"]=pd.to_datetime(ratings['view_time'])
+movies=pd.read_sql('select * from movies2',conn)
+ratings=pd.read_sql('select * from ratings2',conn)
+
+movies
+ratings
 
