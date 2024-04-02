@@ -1,3 +1,8 @@
+from surprise import Reader, Dataset
+from surprise.model_selection import cross_validate, GridSearchCV
+from surprise import KNNBasic, KNNWithMeans, KNNWithZScore, KNNBaseline
+from surprise.model_selection import train_test_split
+
 import numpy as np
 import pandas as pd
 import sqlite3 as sql
