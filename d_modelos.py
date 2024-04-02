@@ -23,7 +23,7 @@ cur=conn.cursor()
 
 ##### recomendaciones basado en popularidad ######
 
-#### mejores calificadas que tengan calificacion
+#### mejores calificadas
 pd.read_sql("""select title, 
             avg(movie_rating) as avg_rat,
             count(*) as conteo_calificaiones
@@ -47,8 +47,7 @@ pd.read_sql("""select title,
 #### los mejores calificados por año publicacion ###
 pd.read_sql("""select año_estreno, title, 
             avg(iif(movie_rating = 0, Null, movie_rating)) as avg_rat,
-            count(iif(movie_rating = 0, Null, movie_rating)) as conteo,
-            count(*) as conteo_calificaiones
+            count(iif(movie_rating = 0, Null, movie_rating)) as conteo_rat
             from ratings_final2
             group by  año_estreno, title
             order by año_estreno desc, avg_rat desc limit 20
@@ -56,9 +55,10 @@ pd.read_sql("""select año_estreno, title,
 
 
 
-#######################################################################
-######## 2.1 Sistema de recomendación basado en contenido - Manual #####
-#######################################################################
+
+##############################################################################################
+######## 2. Sistema de recomendación basado en contenido KNN un solo producto visto #########
+##############################################################################################
 
 movies=pd.read_sql('select * from movies2',conn)
 movies.info()
@@ -67,37 +67,10 @@ movies.info()
 
 ##### escalar para que año esté en el mismo rango ###
 sc=MinMaxScaler()
-movies[["año_estrenoSC"]]=sc.fit_transform(movies[['año_estreno']])
- 
+movies[["año_estreno_sc"]]=sc.fit_transform(movies[['año_estreno']])
+
 ##### eliminar filas que no se van a utilizar ###
 movies_dum1=movies.drop(columns=['movieId','title','conteo','año_estreno'])
- 
-###### mostrar películas recomendadas #####
-pelicula='Toy Story (1995)'
-ind_movie=movies[movies['title']==pelicula].index.values.astype(int)[0]
-correlaciones= movies_dum1.corrwith(movies_dum1.iloc[ind_movie,:],axis=1)
-df_correlaciones = pd.DataFrame({'movieId': movies['movieId'], 'title': movies['title'], 'correlation': correlaciones})
-df_correlaciones = df_correlaciones.sort_values(by='correlation', ascending=False)
-df_correlaciones.head(10)
-
-
-#### Peliculas recomendados ejemplo para visualización todas las peliculas
-def recomendacion(movie = list(movies['title'])):
-     
-    ind_movie=movies[movies['title']==movie].index.values.astype(int)[0]  
-    similar_movies = movies_dum1.corrwith(movies_dum1.iloc[ind_movie,:],axis=1)
-    similar_movies =  similar_movies.sort_values(ascending=False)
-    top_similar_movies= similar_movies.to_frame(name="correlation").iloc[0:10,]
-    top_similar_movies['title']=movies["title"]
-   
-    return top_similar_movies
- 
-print(interact(recomendacion))
-
-
-##############################################################################################
-######## 2.2 Sistema de recomendación basado en contenido KNN un solo producto visto #########
-##############################################################################################
 
 ##### ### entrenar modelo #####
 
@@ -121,7 +94,7 @@ for newid in idlist[movie_id]:
 
 movie_list_name
 
-
+## Peliculas recomendadas
 def MovieRecommender(movie_name = list(movies['title'].value_counts().index)):
     movie_list_name = []
     movie_id = movies[movies['title'] == movie_name].index
@@ -129,7 +102,6 @@ def MovieRecommender(movie_name = list(movies['title'].value_counts().index)):
     for newid in idlist[movie_id]:
         movie_list_name.append(movies.loc[newid].title)
     return movie_list_name
-
 
 print(interact(MovieRecommender))
 
