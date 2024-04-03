@@ -22,6 +22,8 @@ cur=conn.cursor()
 #######################################################################
 
 movies=pd.read_sql('select * from movies2',conn)
+movies['año_estreno']=movies.año_estreno.astype('int')
+
 movies.info()
 
 
@@ -31,14 +33,14 @@ movies_dum1= joblib.load('salidas\\movies_dum1.joblib')
 
 usuarios=pd.read_sql('select distinct (user_id) as user_id from ratings_final2',conn)
 
-user_id=312
+user_id=89
 
 def recomendar(user_id=list(usuarios['user_id'].value_counts().index)):
     
     ratings=pd.read_sql('select *from ratings_final2 where user_id=:user',conn, params={'user':user_id})
     l_movies_r=ratings['movie_id'].to_numpy()
     ####agregar la columna de movie_id y title de la pelicula a dummie para filtrar y mostrar nombre
-    movies_dum1[['movie_id','title']]=movies[['movie_id','title']]
+    movies_dum1[['movie_id','title']]=movies[['movieId','title']]
 
     ### filtrar peliculas calificadas por el usuario
     movies_r=movies_dum1[movies_dum1['movie_id'].isin(l_movies_r)]
@@ -61,8 +63,8 @@ def recomendar(user_id=list(usuarios['user_id'].value_counts().index)):
     dist, idlist = model.kneighbors(centroide)
     
     ids=idlist[0]
-    recomend_b=movies.loc[ids][['title','movie_id']]
-    leidos=movies[movies['movie_id'].isin(l_movies_r)][['title','movie_id']]
+    recomend_b=movies.loc[ids][['title','movieId']]
+    leidos=movies[movies['movieId'].isin(l_movies_r)][['title','movieId']]
     
     return recomend_b
 

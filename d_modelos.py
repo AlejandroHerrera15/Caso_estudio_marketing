@@ -72,6 +72,8 @@ movies[["año_estreno_sc"]]=sc.fit_transform(movies[['año_estreno']])
 ##### eliminar filas que no se van a utilizar ###
 movies_dum1=movies.drop(columns=['movieId','title','conteo','año_estreno'])
 
+joblib.dump(movies_dum1,"salidas\\movies_dum1.joblib") ### para utilizar en segundos modelos
+
 ##### ### entrenar modelo #####
 
 model = neighbors.NearestNeighbors(n_neighbors=11, metric='cosine')

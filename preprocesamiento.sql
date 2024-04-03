@@ -36,6 +36,8 @@ from movies1 a inner join
 movies_vistas b on a.movieId = b.movieId;
 
 -----------------------------------------------------------------
+-- Tabla final 
+
 DROP TABLE IF EXISTS ratings_final;
 
 CREATE TABLE ratings_final AS
