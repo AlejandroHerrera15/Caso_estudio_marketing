@@ -127,3 +127,41 @@ gridsearchKNNWithMeans.best_params["rmse"]
 gridsearchKNNWithMeans.best_score["rmse"]
 gs_model=gridsearchKNNWithMeans.best_estimator['rmse'] ### mejor estimador de gridsearch
 
+################# Entrenar con todos los datos y Realizar predicciones con el modelo afinado
+
+trainset = data.build_full_trainset() ### esta función convierte todos los datos en entrnamiento, las funciones anteriores dividen  en entrenamiento y evaluación
+model=gs_model.fit(trainset) ## se reentrena sobre todos los datos posibles (sin dividir)
+
+
+
+predset = trainset.build_anti_testset() ### crea una tabla con todos los usuarios y los libros que no han leido
+#### en la columna de rating pone el promedio de todos los rating, en caso de que no pueda calcularlo para un item-usuario
+len(predset)
+
+predictions = gs_model.test(predset) ### función muy pesada, hace las predicciones de rating para todos los libros que no hay leido un usuario
+### la funcion test recibe un test set constriuido con build_test method, o el que genera crosvalidate
+
+predictions_df = pd.DataFrame(predictions) ### esta tabla se puede llevar a una base donde estarán todas las predicciones
+predictions_df.shape
+predictions_df.head()
+predictions_df['r_ui'].unique() ### promedio de ratings
+predictions_df.sort_values(by='est',ascending=False)
+
+def recomendaciones(user_id,n_recomend=10):
+    
+    predictions_userID = predictions_df[predictions_df['uid'] == user_id].\
+                    sort_values(by="est", ascending = False).head(n_recomend)
+
+    recomendados = predictions_userID[['iid','est']]
+    recomendados.to_sql('reco',conn,if_exists="replace")
+    
+    recomendados=pd.read_sql('''select a.*, b.title 
+                             from reco a left join movies_f b
+                             on a.iid=b.movieId ''', conn)
+
+    return(recomendados)
+
+
+ 
+recomendaciones(user_id=500,n_recomend=10)
+
