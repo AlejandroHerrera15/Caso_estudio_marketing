@@ -96,6 +96,7 @@ results = {}
 
 #### for para probar varios modelos ##########
 model=models[1]
+
 for model in models:
  
     CV_scores = cross_validate(model, data, measures=["MAE","RMSE"], cv=5, n_jobs=-1)  
