@@ -47,20 +47,20 @@ def recomendar(user_id):
     ratings=pd.read_sql('select *from ratings_final where user_id=:user',conn, params={'user':user_id})
     l_movies=ratings['movieId'].to_numpy()
     movies_dum1[['movieId','title']]=movies[['movieId','title']]
-    movies_nr=boo_dum2[books_dum2['isbn'].isin(l_books_r)]
-    books_r=books_r.drop(columns=['isbn','book_title'])
-    books_r["indice"]=1 ### para usar group by y que quede en formato pandas tabla de centroide
-    centroide=books_r.groupby("indice").mean()
+    movies_r=movies_dum1[movies_dum1['movieId'].isin(l_movies)]
+    movies_r=movies_r.drop(columns=['movieId','title'])
+    movies_r["indice"]=1 ### para usar group by y que quede en formato pandas tabla de centroide
+    centroide=movies_r.groupby("indice").mean()
     
     
-    books_nr=books_dum2[~books_dum2['isbn'].isin(l_books_r)]
-    books_nr=books_nr.drop(columns=['isbn','book_title'])
+    movies_nr=movies_dum1[~movies_dum1['movieId'].isin(l_movies)]
+    movies_nr=movies_nr.drop(columns=['movieId','title'])
     model=neighbors.NearestNeighbors(n_neighbors=11, metric='cosine')
-    model.fit(books_nr)
+    model.fit(movies_nr)
     dist, idlist = model.kneighbors(centroide)
     
     ids=idlist[0]
-    recomend_b=books.loc[ids][['book_title','isbn']]
+    recomend_b=movies.loc[ids][['movieId','title']]
     
     
     return recomend_b
@@ -79,12 +79,12 @@ def main(list_user):
         
         recomendaciones_todos=pd.concat([recomendaciones_todos, recomendaciones])
 
-    recomendaciones_todos.to_excel('C:\\cod\\LEA3_RecSys\\salidas\\reco\\recomendaciones.xlsx')
-    recomendaciones_todos.to_csv('C:\\cod\\LEA3_RecSys\\salidas\\reco\\recomendaciones.csv')
+    recomendaciones_todos.to_excel('salidas\\recomendaciones.xlsx')
+    recomendaciones_todos.to_csv('salidas\\recomendaciones.csv')
 
 
 if __name__=="__main__":
-    list_user=[52853,31226,167471,8066 ]
+    list_user=[1,2,3,4,5]
     main(list_user)
     
 
