@@ -174,6 +174,7 @@ base_completa
 
 
 conn.close()
+#Cerrar conexion de base de datos
 
 
 
