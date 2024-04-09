@@ -17,7 +17,7 @@ conn=sql.connect('data\\db_movies')
 cur=conn.cursor() 
 
 #######################################################################
-#### 3 Sistema de recomendación basado en contenido KNN #################
+#### 3. Sistema de recomendación basado en contenido KNN #################
 #### Con base en todo lo visto por el usuario #######################
 #######################################################################
 
@@ -80,7 +80,7 @@ print(interact(recomendar))
 
 
 ############################################################################
-#####4 Sistema de recomendación filtro colaborativo #####
+##### 4. Sistema de recomendación filtro colaborativo #####
 ############################################################################
 
 ### datos originales en pandas
@@ -147,13 +147,13 @@ predset = trainset.build_anti_testset() ### crea una tabla con todos los usuario
 #### en la columna de rating pone el promedio de todos los rating, en caso de que no pueda calcularlo para un item-usuario
 len(predset)
 
-predictions = gs_model.test(predset) ### función muy pesada, hace las predicciones de rating para todas las peliculas que no ha calificado un usuario
+predictions = gs_model.test(predset) ### función muy pesada, hace las predicciones de rating para todas las peliculas que no ha visto un usuario
 ### la funcion test recibe un test set constriuido con build_test method, o el que genera crosvalidate
 
 predictions_df = pd.DataFrame(predictions) ### esta tabla se puede llevar a una base donde estarán todas las predicciones
 predictions_df.shape
 predictions_df.head()
-predictions_df['r_ui'].unique() ### promedio de ratings
+predictions_df['r_ui'].unique() ### promedio de ratings.
 predictions_df.sort_values(by='est',ascending=False)
 
 def recomendaciones(user_id,n_recomend=10):

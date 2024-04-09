@@ -175,7 +175,7 @@ base_ratings
 base_movies
 base_completa
 
-#Cerrar conexion de base de datos
+#Cerrar conexion de base de datos.
 conn.close()
 
 

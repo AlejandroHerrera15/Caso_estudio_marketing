@@ -107,7 +107,7 @@ def MovieRecommender(movie_name = list(movies['title'].value_counts().index)):
     movie_id = movie_id[0]
     for newid in idlist[movie_id]:
         movie_list_name.append(movies.loc[newid].title)
-    movie_list_name = [movie for movie in movie_list_name if movie != movie_name] # Remover la pelicula seleccionada de la lista
+    movie_list_name = [movie for movie in movie_list_name if movie != movie_name] # Remover la pelicula seleccionada de la lista.
     return movie_list_name
 
 print(interact(MovieRecommender))

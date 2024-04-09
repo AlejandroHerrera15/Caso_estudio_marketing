@@ -37,9 +37,9 @@ def preprocesar():
 
     return movies_dum1,movies, conn, cur
 
-##########################################################################
-###############Función para entrenar modelo por cada usuario ##########
-###############Basado en contenido todo lo visto por el usuario Knn#############################
+#########################################################################
+############## Función para entrenar modelo por cada usuario #############
+############## Basado en contenido todo lo visto por el usuario Knn ######
 def recomendar(user_id):
     
     movies_dum1, movies, conn, cur= preprocesar()
