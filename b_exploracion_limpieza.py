@@ -107,6 +107,7 @@ movies =pd.read_sql('select * from  movies_f',conn)
 pd.read_sql('select count(*) ratings_final', conn)
 df_final = pd.read_sql('select * from  ratings_final',conn)
 
+## LIMPIEZA PARA LA BASE MOVIES
 ###### Para separar géneros en base de datos
 genres=movies['genres'].str.split('|')
 te = TransactionEncoder()
@@ -121,6 +122,7 @@ movies = movies.drop(['movieId:1'], axis = 1)
 ###### Extraer año de la variable titulo
 movies['año_estreno'] = movies['title'].str[-5:-1]
 
+## LIMPIEZA PARA LA BASE RATINGS
 ###### Conviertiendo la variable timestamp a datetime
 if 'timestamp' in ratings.columns:
     # Convertir 'timestamp' a formato de fecha
@@ -133,7 +135,7 @@ if 'timestamp' in ratings.columns:
     ratings['fecha_vista'] = ratings['fecha_vista'].dt.date
 
 
-###### Limpieza para base combinada final
+## LIMPIEZA PARA LA BASE COMBINADA RATINGS Y MOVIES.
 genres2=df_final['genres'].str.split('|')
 te2= TransactionEncoder()
 genres2 = te2.fit_transform(genres2)
@@ -159,6 +161,7 @@ if 'timestamp' in df_final.columns:
     df_final['fecha_vista'] = df_final['fecha_vista'].dt.date
 
 
+## Llevar datos limpios a la base de datos
 movies.to_sql('movies2',conn, index=False, if_exists='replace')
 base_movies=pd.read_sql('select * from movies2',conn)
 
@@ -172,9 +175,8 @@ base_ratings
 base_movies
 base_completa
 
-
-conn.close()
 #Cerrar conexion de base de datos
+conn.close()
 
 
 

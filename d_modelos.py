@@ -21,20 +21,21 @@ cur=conn.cursor()
 #####################################################################
 
 
-##### recomendaciones basado en popularidad ######
+##### Recomendaciones basado en popularidad ######
 
-#### mejores calificadas
+#### TOP las peliculas mejor calificadas con más de 100 calificaciones
 pd.read_sql("""select title, 
             avg(movie_rating) as avg_rat,
             count(*) as conteo_calificaiones
             from ratings_final2
             where movie_rating<>0
             group by title
+            having conteo_calificaiones >100
             order by avg_rat desc
             limit 10
             """, conn)
 
-#### Peliculas más vistas con promedio de los que calficaron ###
+#### TOP peliculas más calificadas con promedio de los que calficaron ###
 pd.read_sql("""select title, 
             avg(iif(movie_rating = 0, Null, movie_rating)) as avg_rat,
             count(*) as conteo_calificaiones
@@ -44,16 +45,19 @@ pd.read_sql("""select title,
             limit 10
             """, conn)
 
-#### los mejores calificados por año publicacion ###
+#### TOP las peliculas mejor calificados por año de publicacion con más de 50 calificaciones ###
 pd.read_sql("""select año_estreno, title, 
             avg(iif(movie_rating = 0, Null, movie_rating)) as avg_rat,
             count(iif(movie_rating = 0, Null, movie_rating)) as conteo_rat
             from ratings_final2
             group by  año_estreno, title
-            order by año_estreno desc, avg_rat desc limit 20
+            having conteo_rat >50
+            order by año_estreno desc, avg_rat desc limit 30
             """, conn)
 
-
+### ANALISIS:
+### Estas recomendaciones son las más sencillas de realizar al solo ser analitica descriptiva, sin embargo
+### son muy útiles y muy usadas por platamaformas como spotify en sus tops musicales.
 
 
 ##############################################################################################
@@ -103,9 +107,16 @@ def MovieRecommender(movie_name = list(movies['title'].value_counts().index)):
     movie_id = movie_id[0]
     for newid in idlist[movie_id]:
         movie_list_name.append(movies.loc[newid].title)
+    movie_list_name = [movie for movie in movie_list_name if movie != movie_name] # Remover la pelicula seleccionada de la lista
     return movie_list_name
 
 print(interact(MovieRecommender))
+
+### ANALISIS:
+### Este sistema de recomendación busca las peliculas más similares a la seleccionada en base
+### a su genero y su año de publicación.
+### Para tener unas correlaciones más significativas se podría realizar el mismo modelo pero agregando
+### más variables que sean representativas de las peliculas para tener un mejor filtro.
 
 
 
