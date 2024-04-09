@@ -72,6 +72,12 @@ recomendar(30)
 
 print(interact(recomendar))
 
+### ANALISIS:
+### En este modelo, las películas son recomendadas a cada usuario basándose en todo su historial
+### de observaciones en la plataforma. Esto proporciona un modelo robusto con suficiente 
+### información para generar un conjunto de recomendaciones personalizado según los datos históricos de cada individuo.
+
+
 
 ############################################################################
 #####4 Sistema de recomendación filtro colaborativo #####
@@ -137,11 +143,11 @@ model=gs_model.fit(trainset) ## se reentrena sobre todos los datos posibles (sin
 
 
 
-predset = trainset.build_anti_testset() ### crea una tabla con todos los usuarios y los libros que no han leido
+predset = trainset.build_anti_testset() ### crea una tabla con todos los usuarios y las peliculas que no han calificado
 #### en la columna de rating pone el promedio de todos los rating, en caso de que no pueda calcularlo para un item-usuario
 len(predset)
 
-predictions = gs_model.test(predset) ### función muy pesada, hace las predicciones de rating para todos los libros que no hay leido un usuario
+predictions = gs_model.test(predset) ### función muy pesada, hace las predicciones de rating para todas las peliculas que no ha calificado un usuario
 ### la funcion test recibe un test set constriuido con build_test method, o el que genera crosvalidate
 
 predictions_df = pd.DataFrame(predictions) ### esta tabla se puede llevar a una base donde estarán todas las predicciones
@@ -167,4 +173,12 @@ def recomendaciones(user_id,n_recomend=10):
 
  
 recomendaciones(user_id=500,n_recomend=10)
+
+### ANALISIS:
+### En la evaluación de los modelos para realizar predicciones, se consideran métricas como
+### MAE (Error Absoluto Medio), RMSE (Error Cuadrático Medio), tiempo de ajuste (fit time) y tiempo de prueba (test time). 
+### Se observa que todos los modelos muestran resultados muy similares en estas métricas por lo que se prefirió priorizar el desempeño en el tiempo de procesamiento
+### por lo que se eligió  el knns.KNNWithMeans.
+### En este modelo, se utilizan las calificaciones de los usuarios para sugerir películas al usuario seleccionado, priorizando las estimaciones más altas. 
+### Este enfoque es más fiable cuando hay un mayor número de calificaciones por película.
 
